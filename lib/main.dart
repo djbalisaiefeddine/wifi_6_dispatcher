@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:async';
+import 'package:process_run/shell.dart';
 
 
-
+List<Widget>  wifilist = [] ;
 
 void main() {
   runApp(const MyApp());
@@ -57,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
+
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -91,17 +95,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: MediaQuery.of(context).size.width*0.5,
                 child: ListView(
                   padding: const EdgeInsets.all(8),
-                  children: <Widget>[
-                    Text('List 1'),
-                    Text('List 2'),
-                    Text('List 3'),
-                  ],
+                  children: wifilist,
                 ),
               ),
               Container(height: 20,),
               Container(
                 height: MediaQuery.of(context).size.height+0.5,
                 width: MediaQuery.of(context).size.width*0.5,
+                child: ListView(
+                  padding: const EdgeInsets.all(8),
+                  children: wifilist,
+
+              ),
               )
 
             ],
@@ -113,7 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-   test();
+   //test();
+   // run_shell();
+    get_wifi_list();
   }
 
   void getavailablewifi(){
@@ -131,6 +138,46 @@ class _MyHomePageState extends State<MyHomePage> {
       stdout.addStream(process.stdout);
       stderr.addStream(process.stderr);
       process.exitCode.then(print);
+    });
+  }
+
+  Future<void> run_shell() async {
+    var shell = Shell();
+
+    var ret = await shell.run('''
+    netsh wlan show network
+  ''');
+    print("this is my code return "+ret.outLines.toString());
+
+    //shell = shell.pushd('example');
+/**
+    await shell.run('''
+
+# Listing directory in the example folder
+dir
+
+  ''');*/
+   //shell = shell.popd();
+
+  }
+
+
+  Future<void> get_wifi_list() async {
+    var shell = Shell();
+    //netsh wlan show network
+    var ret = await shell.run('''
+    ipconfig
+  ''');
+    print("this is my code return "+ret.outLines.toString());
+    ret.outLines.forEach((element) {
+      print("new line"+element);
+      if( element.contains("other")){
+        wifilist.add(Text(element));
+      }
+
+    });
+    setState(() {
+
     });
   }
 
